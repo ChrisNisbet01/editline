@@ -141,12 +141,20 @@ static int SplitPath(char *path, char **dirpart, char **filepart)
 }
 
 static rl_complete_func_t *el_complete_func = NULL;
+static rl_complete_with_args_func_t *el_complete_with_args_func = NULL;
 
 /* For compatibility with the Heimdal project. */
 rl_complete_func_t *rl_set_complete_func(rl_complete_func_t *func)
 {
     rl_complete_func_t *old = el_complete_func;
     el_complete_func = func;
+    return old;
+}
+
+rl_complete_with_args_func_t *rl_set_complete_with_args_func(rl_complete_with_args_func_t *func)
+{
+    rl_complete_with_args_func_t *old = el_complete_with_args_func;
+    el_complete_with_args_func = func;
     return old;
 }
 
@@ -222,10 +230,13 @@ char *el_filename_complete(char *pathname, int *match)
     return p;
 }
 
-char *rl_complete(char *token, int *match)
+char *rl_complete(int argc, char **argv, char *token, int *match)
 {
+	/* original method takes precedence */
     if (el_complete_func)
-	return el_complete_func(token, match);
+		return el_complete_func(token, match);
+	else if (el_complete_with_args_func)
+		return el_complete_with_args_func(argc, argv, token, match);
 
 #ifdef CONFIG_DEFAULT_COMPLETE
     return el_filename_complete(token, match);

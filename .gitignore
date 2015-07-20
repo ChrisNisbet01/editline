@@ -13,7 +13,6 @@ examples/testit
 examples/testit.o
 include/Makefile
 man/Makefile
-man/Makefile
 src/.deps
 src/Makefile
 src/*.o
@@ -23,3 +22,4 @@ src/libeditline.la
 stamp-h1
 *~
 */.libs/
+/editline.vtg

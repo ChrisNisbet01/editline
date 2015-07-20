@@ -41,6 +41,7 @@ typedef enum {
 
 /* Editline specific types, despite rl_ prefix.  From Heimdal project. */
 typedef char* rl_complete_func_t(char*, int*);
+typedef char* rl_complete_with_args_func_t(int argc, char **argv, char*, int*);
 typedef int rl_list_possib_func_t(char*, char***);
 typedef el_status_t el_keymap_func_t(void);
 typedef int  rl_hook_func_t(void);
@@ -60,7 +61,7 @@ extern el_status_t el_del_char(void);
 extern el_status_t el_bind_key(int key, el_keymap_func_t function);
 extern el_status_t el_bind_key_in_metamap(int key, el_keymap_func_t function);
 
-extern char       *rl_complete(char *token, int *match);
+extern char       *rl_complete(int argc, char **argv, char *token, int *match);
 extern int         rl_list_possib(char *token, char ***av);
 
 /* For compatibility with FSF readline. */

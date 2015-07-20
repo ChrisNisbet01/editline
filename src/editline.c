@@ -130,6 +130,7 @@ extern int      tgetent(char *, const char *);
 extern int      tgetnum(const char *);
 #endif
 
+static int argify(char *line, char ***avp);
 
 /*
 **  Misc. local helper functions.
@@ -1360,15 +1361,27 @@ static el_status_t c_complete(void)
     size_t      len;
     int         unique;
     el_status_t s = CSdone;
+	int argc;
+	char **argv = NULL;
+	char *line_buffer_copy = strdup(rl_line_buffer);
 
     if (rl_inhibit_complete)
 	return CSdispatch;
 
     word = el_find_word();
-    p = rl_complete(word, &unique);
+	if (line_buffer_copy != NULL)
+		argc = argify(line_buffer_copy, &argv);
+	else
+		argc = 0;
+    p = rl_complete(argc, argv, word, &unique);
     if (word)
         free(word);
-    if (p) {
+	if (argv)
+		free(argv);
+	if (line_buffer_copy)
+		free(line_buffer_copy);
+	if (p)
+	{
         len = strlen(p);
         word = p;
 

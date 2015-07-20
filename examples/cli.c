@@ -30,7 +30,7 @@ static char *list[] = {
 
 /* Attempt to complete the pathname, returning an allocated copy.
  * Fill in *unique if we completed it, or set it to 0 if ambiguous. */
-static char *my_rl_complete(char *token, int *match)
+static char *my_rl_complete(int argc, char **argv, char *token, int *match)
 {
    int i;
    int index = -1;
@@ -126,7 +126,7 @@ int main(int ac __attribute__ ((unused)), char *av[] __attribute__ ((unused)))
    char	*prompt = "cli> ";
 
    /* Setup callbacks */
-   rl_set_complete_func(&my_rl_complete);
+   rl_set_complete_with_args_func(&my_rl_complete);
    rl_set_list_possib_func(&my_rl_list_possib);
    el_bind_key('?', list_possible);
    el_bind_key(CTL('C'), do_break);
