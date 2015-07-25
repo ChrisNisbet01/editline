@@ -28,9 +28,9 @@ static char *list[] = {
    "foo ", "bar ", "bsd ", "cli ", "ls ", "cd ", "malloc ", "tee ", NULL
 };
 
-/* Attempt to complete the pathname, returning an allocated copy.
+/* Attempt to complete the token, returning an allocated copy.
  * Fill in *unique if we completed it, or set it to 0 if ambiguous. */
-static char *my_rl_complete(int argc, char **argv, char *token, int *match)
+static char *my_rl_complete(int argc, char **argv, int current_arg, char *token, int *match)
 {
    int i;
    int index = -1;

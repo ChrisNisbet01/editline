@@ -34,7 +34,6 @@
 #define EL_STDOUT       1
 #define NO_ARG          (-1)
 #define DEL             127
-#define SEPS "\"#$&'()*:;<=>?[\\]^`{|}~\n\t "
 
 /*
 **  The type of case-changing to perform.
@@ -472,7 +471,7 @@ static el_status_t insert_string(const char *p)
 
     len = strlen(p);
     if (rl_end + len >= Length) {
-	line = malloc(sizeof(char) * (Length + len + MEM_INC));
+		line = malloc(sizeof(char) * (Length + len + MEM_INC));
         if (!line)
             return CSstay;
 
@@ -1304,14 +1303,10 @@ char *el_find_word(void)
     p = &rl_line_buffer[rl_point];
     while (p > rl_line_buffer) {
         p--;
-        if (p > rl_line_buffer && p[-1] == '\\') {
-            p--;
-        } else {
-            if (strchr(SEPS, (char) *p) != NULL) {
-                p++;
-                break;
-            }
-        }
+		if (isspace((int)*p)) {
+			p++;
+			break;
+		}
     }
 
     len = rl_point - (p - rl_line_buffer) + 1;
@@ -1321,15 +1316,42 @@ char *el_find_word(void)
 
     q = word;
     while (p < &rl_line_buffer[rl_point]) {
-        if (*p == '\\') {
-            if (++p == &rl_line_buffer[rl_point])
-		break;
-        }
         *q++ = *p++;
     }
     *q = '\0';
 
     return word;
+}
+
+int el_find_current_arg(void)
+{
+	int current_arg = 0;
+	char *pch = rl_line_buffer;
+	int previous_ch_was_space;
+
+	/* work out the current arg position from rl_point */
+	while (isspace((int)*pch))
+		pch++;
+	if (*pch == '\n' || *pch == '\0')
+		goto done;
+	previous_ch_was_space = 0;
+	while (pch < &rl_line_buffer[rl_point])
+	{
+		if (isspace((int)*pch))
+		{
+			previous_ch_was_space = 1;
+		}
+		else if (previous_ch_was_space)
+		{
+			previous_ch_was_space = 0;
+			/* start of a new word */
+			current_arg++;
+		}
+		pch++;
+	}
+
+done:
+	return current_arg;
 }
 
 static el_status_t c_possible(void)
@@ -1356,24 +1378,25 @@ static el_status_t c_possible(void)
 
 static el_status_t c_complete(void)
 {
-    char        *p, *q;
-    char        *word, *string;
+    char        *p;
+    char        *word;
     size_t      len;
     int         unique;
     el_status_t s = CSdone;
-	int argc;
+	int argc, current_arg;
 	char **argv = NULL;
 	char *line_buffer_copy = strdup(rl_line_buffer);
 
     if (rl_inhibit_complete)
-	return CSdispatch;
+		return CSdispatch;
 
     word = el_find_word();
+	current_arg = el_find_current_arg();
 	if (line_buffer_copy != NULL)
 		argc = argify(line_buffer_copy, &argv);
 	else
 		argc = 0;
-    p = rl_complete(argc, argv, word, &unique);
+    p = rl_complete(argc, argv, current_arg, word, &unique);
     if (word)
         free(word);
 	if (argv)
@@ -1385,33 +1408,17 @@ static el_status_t c_complete(void)
         len = strlen(p);
         word = p;
 
-        string = q = malloc(sizeof(char) * (2 * len + 1));
-	if (!string) {
-	    free(word);
-	    return CSstay;
-	}
-
-        while (*p) {
-            if ((*p < ' ' || strchr(SEPS, *p) != NULL)
-                                && (!unique || p[1] != 0)) {
-                *q++ = '\\';
-            }
-            *q++ = *p++;
-        }
-        *q = '\0';
-        free(word);
-
         if (len > 0) {
-            s = insert_string(string);
+            s = insert_string(word);
 #ifdef CONFIG_TERMINAL_BELL
             if (!unique)
                 el_ring_bell();
 #endif
         }
-        free(string);
+		free(word);
 
         if (len > 0)
-	    return s;
+			return s;
     }
 
     return c_possible();

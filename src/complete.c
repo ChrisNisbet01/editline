@@ -230,13 +230,13 @@ char *el_filename_complete(char *pathname, int *match)
     return p;
 }
 
-char *rl_complete(int argc, char **argv, char *token, int *match)
+char *rl_complete(int argc, char **argv, int current_arg, char *token, int *match)
 {
 	/* original method takes precedence */
     if (el_complete_func)
 		return el_complete_func(token, match);
 	else if (el_complete_with_args_func)
-		return el_complete_with_args_func(argc, argv, token, match);
+		return el_complete_with_args_func(argc, argv, current_arg, token, match);
 
 #ifdef CONFIG_DEFAULT_COMPLETE
     return el_filename_complete(token, match);

@@ -72,7 +72,7 @@ extern int	rl_susp;
 #endif
 void  rl_ttyset(int Reset);
 void  rl_add_slash(char *path, char *p);
-char *rl_complete(int argc, char **argv, char *token, int *match);
+char *rl_complete(int argc, char **argv, int current_arg, char *token, int *match);
 int   rl_list_possib(char *token, char ***av);
 
 #ifndef HAVE_STDLIB_H

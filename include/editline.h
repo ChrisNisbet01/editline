@@ -41,7 +41,7 @@ typedef enum {
 
 /* Editline specific types, despite rl_ prefix.  From Heimdal project. */
 typedef char* rl_complete_func_t(char*, int*);
-typedef char* rl_complete_with_args_func_t(int argc, char **argv, char*, int*);
+typedef char* rl_complete_with_args_func_t(int argc, char **argv, int current_arg, char*, int*);
 typedef int rl_list_possib_func_t(char*, char***);
 typedef el_status_t el_keymap_func_t(void);
 typedef int  rl_hook_func_t(void);
@@ -54,6 +54,7 @@ extern int rl_meta_chars;
 
 /* Editline specific functions. */
 extern char *      el_find_word(void);
+extern int el_find_current_arg(void);
 extern void        el_print_columns(int ac, char **av);
 extern el_status_t el_ring_bell(void);
 extern el_status_t el_del_char(void);
@@ -61,7 +62,7 @@ extern el_status_t el_del_char(void);
 extern el_status_t el_bind_key(int key, el_keymap_func_t function);
 extern el_status_t el_bind_key_in_metamap(int key, el_keymap_func_t function);
 
-extern char       *rl_complete(int argc, char **argv, char *token, int *match);
+extern char       *rl_complete(int argc, char **argv, int current_arg, char *token, int *match);
 extern int         rl_list_possib(char *token, char ***av);
 
 /* For compatibility with FSF readline. */
@@ -94,7 +95,9 @@ extern int read_history(const char *filename);
 extern int write_history(const char *filename);
 
 rl_complete_func_t    *rl_set_complete_func(rl_complete_func_t *func);
+rl_complete_with_args_func_t *rl_set_complete_with_args_func(rl_complete_with_args_func_t *func);
 rl_list_possib_func_t *rl_set_list_possib_func(rl_list_possib_func_t *func);
+char *el_filename_complete(char *pathname, int *match);
 
 void rl_prep_terminal(int meta_flag);
 void rl_deprep_terminal(void);
